@@ -11,9 +11,12 @@ import com.linkedin.datahub.graphql.generated.StructuredPropertiesEntry;
 import com.linkedin.datahub.graphql.generated.StructuredPropertyEntity;
 import com.linkedin.datahub.graphql.types.common.mappers.UrnToEntityMapper;
 import com.linkedin.structured.StructuredProperties;
+import com.linkedin.structured.StructuredPropertyDefinition;
 import com.linkedin.structured.StructuredPropertyValueAssignment;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,6 +34,15 @@ public class StructuredPropertiesMapper {
     return INSTANCE.apply(context, structuredProperties, entityUrn);
   }
 
+  // Add new static method for mapping with all possible properties
+  public static com.linkedin.datahub.graphql.generated.StructuredProperties map(
+      @Nullable QueryContext context,
+      @Nonnull final StructuredProperties structuredProperties,
+      @Nonnull final Urn entityUrn,
+      @Nonnull final List<StructuredPropertyDefinition> allPossibleProperties) {
+    return INSTANCE.apply(context, structuredProperties, entityUrn, allPossibleProperties);
+  }
+
   public com.linkedin.datahub.graphql.generated.StructuredProperties apply(
       @Nullable QueryContext context,
       @Nonnull final StructuredProperties structuredProperties,
@@ -42,6 +54,60 @@ public class StructuredPropertiesMapper {
             .map(p -> mapStructuredProperty(context, p, entityUrn))
             .collect(Collectors.toList()));
     return result;
+  }
+
+  // Add new apply method that handles all possible properties
+  public com.linkedin.datahub.graphql.generated.StructuredProperties apply(
+      @Nullable QueryContext context,
+      @Nonnull final StructuredProperties structuredProperties,
+      @Nonnull final Urn entityUrn,
+      @Nonnull final List<StructuredPropertyDefinition> allPossibleProperties) {
+    com.linkedin.datahub.graphql.generated.StructuredProperties result =
+        new com.linkedin.datahub.graphql.generated.StructuredProperties();
+
+    // Create a map of existing property values by their URN for easy lookup
+    Map<String, StructuredPropertyValueAssignment> existingPropertiesByUrn = new HashMap<>();
+    structuredProperties.getProperties().forEach(prop -> {
+      existingPropertiesByUrn.put(prop.getPropertyUrn().toString(), prop);
+    });
+
+    // Create a list to hold all entries (existing and default ones)
+    List<StructuredPropertiesEntry> allEntries = new ArrayList<>();
+
+    // Process all possible properties, creating entries for each
+    for (StructuredPropertyDefinition def : allPossibleProperties) {
+      String propUrnStr = def.getUrn().toString();
+      if (existingPropertiesByUrn.containsKey(propUrnStr)) {
+        // Map existing property value assignment
+        allEntries.add(mapStructuredProperty(context, existingPropertiesByUrn.get(propUrnStr), entityUrn));
+      } else {
+        // Create an empty entry for this property
+        allEntries.add(createEmptyPropertyEntry(context, def, entityUrn));
+      }
+    }
+
+    result.setProperties(allEntries);
+    return result;
+  }
+
+  private StructuredPropertiesEntry createEmptyPropertyEntry(
+      @Nullable QueryContext context,
+      @Nonnull final StructuredPropertyDefinition definition,
+      @Nonnull final Urn entityUrn) {
+    StructuredPropertiesEntry entry = new StructuredPropertiesEntry();
+
+    // Create the structured property entity
+    StructuredPropertyEntity propEntity = new StructuredPropertyEntity();
+    propEntity.setUrn(definition.getUrn().toString());
+    propEntity.setType(EntityType.STRUCTURED_PROPERTY);
+    entry.setStructuredProperty(propEntity);
+
+    // Set empty values and entities lists
+    entry.setValues(new ArrayList<>());
+    entry.setValueEntities(new ArrayList<>());
+    entry.setAssociatedUrn(entityUrn.toString());
+
+    return entry;
   }
 
   private StructuredPropertiesEntry mapStructuredProperty(

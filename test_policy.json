@@ -1,0 +1,38 @@
+  {
+    "urn": "urn:li:dataHubPolicy:edit-retention-time",
+    "info": {
+      "actors": {
+        "resourceOwners": false,
+        "allUsers": false,
+        "allGroups": false,
+        "users": [
+          "urn:li:corpuser:diogovala1993@gmail.com"
+        ]
+      },
+      "privileges": [
+        "EDIT_ENTITY_SPECIFIC_STRUCTURED_PROPERTIES"
+      ],
+      "resources": {
+        "allResources": false,
+        "filter": {
+          "criteria": [
+            {
+              "field": "RESOURCE_TYPE",
+              "values": ["structuredProperty"],
+              "condition": "EQUALS"
+            },
+            {
+              "field": "URN",
+              "values": ["urn:li:structuredProperty:io.acryl.privacy.retentionTime"],
+              "condition": "EQUALS"
+            }
+          ]
+        }
+      },
+      "displayName": "Edit Retention Time Structured Property",
+      "description": "Allows the user to edit the io.acryl.privacy.retentionTime structured property.",
+      "state": "ACTIVE",
+      "type": "METADATA",
+      "editable": true
+    }
+  }

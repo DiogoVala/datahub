@@ -171,6 +171,7 @@ public class DatasetMapper implements ModelMapper<EntityResponse, Dataset> {
         ACCESS_ASPECT_NAME,
         ((dataset, dataMap) ->
             dataset.setAccess(AccessMapper.map(new Access(dataMap), entityUrn))));
+    // NOTE: here the map already contains the properties (without placeholders)
     mappingHelper.mapToResult(
         STRUCTURED_PROPERTIES_ASPECT_NAME,
         ((entity, dataMap) ->

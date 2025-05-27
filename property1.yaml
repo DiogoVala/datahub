@@ -1,0 +1,16 @@
+- urn: urn:li:structuredProperty:io.acryl.privacy.test # optional if id is provided
+  qualified_name: io.acryl.privacy.test # required if urn is provided
+  type: number
+  cardinality: MULTIPLE
+  display_name: TEST
+  entity_types:
+    - dataset # or urn:li:entityType:datahub.dataset
+    - dataFlow
+  description: "Retention Time is used to figure out how long to retain records in a dataset"
+  allowed_values:
+    - value: 30
+      description: 30 days, usually reserved for datasets that are ephemeral and contain pii
+    - value: 90
+      description: Use this for datasets that drive monthly reporting but contain pii
+    - value: 365
+      description: Use this for non-sensitive data that can be retained for longer

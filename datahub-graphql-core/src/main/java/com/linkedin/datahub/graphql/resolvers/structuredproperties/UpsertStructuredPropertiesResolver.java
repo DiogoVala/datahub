@@ -36,7 +36,10 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import lombok.extern.slf4j.Slf4j;
 
+
+@Slf4j
 public class UpsertStructuredPropertiesResolver
     implements DataFetcher<
         CompletableFuture<com.linkedin.datahub.graphql.generated.StructuredProperties>> {
@@ -121,6 +124,8 @@ public class UpsertStructuredPropertiesResolver
             assetUrn.getEntityType(),
             assetUrn,
             ImmutableSet.of(STRUCTURED_PROPERTIES_ASPECT_NAME));
+    log.error("DIOGO: {}: {}", assetUrn, response);
+
     StructuredProperties structuredProperties = new StructuredProperties();
     structuredProperties.setProperties(new StructuredPropertyValueAssignmentArray());
     if (response != null && response.getAspects().containsKey(STRUCTURED_PROPERTIES_ASPECT_NAME)) {
