@@ -7,6 +7,7 @@ fragment autoCompleteFields on Entity {
     ... on Dataset {
         exists
         name
+        origin
         platform {
             ...platformFields
         }
@@ -162,6 +163,7 @@ fragment autoCompleteFields on Entity {
     }
     ... on DataFlow {
         orchestrator
+        cluster
         properties {
             name
         }
@@ -322,6 +324,7 @@ fragment autoCompleteFields on Entity {
     }
     ... on MLModel {
         name
+        origin
         platform {
             ...platformFields
         }
